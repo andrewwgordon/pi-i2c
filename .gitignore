@@ -50,3 +50,10 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Visual Code
+.vscode/*
+
+# I2C Dev Test
+i2cdev_test
+i2cdev_test.c
