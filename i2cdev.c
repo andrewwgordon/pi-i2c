@@ -99,9 +99,9 @@ i2cdev_readbits(int16_t i2cdev_h, uint8_t reg_addr, uint8_t bit_start, uint8_t l
     uint8_t read_byte;
     uint8_t mask;
 
-    // Check bit start - length is greater than 0
+    // Validate bit position and length
     //
-    if ((bit_start - length) < 0)
+    if ((bit_start > 7) || (length > 8) || (bit_start - length < -1))
     {
         return ERROR;
     }
@@ -246,9 +246,9 @@ i2cdev_writebits(int16_t i2cdev_h, uint8_t reg_addr, uint8_t bit_start, uint8_t 
     uint8_t read_byte;
     uint8_t mask;
 
-    // Check bit start - length is greater than 0
+    // Validate bit position and length
     //
-    if ((bit_start - length) < 0)
+    if ((bit_start > 7) || (length > 8) || (bit_start - length < -1))
     {
         return ERROR;
     }
