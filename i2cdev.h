@@ -120,4 +120,14 @@ i2cdev_writebyte(int16_t i2cdev_h, uint8_t reg_addr, uint8_t data);
 */
 int8_t
 i2cdev_writebytes(int16_t i2cdev_h, uint8_t reg_addr, uint8_t length, uint8_t *data);
+
+/**
+*   Write a word to an 8-bit device register.
+*   @param[in] i2cdev_h The handle to the I2C device.
+*   @param[in] reg_addr The address of the I2C device register, normally expressed as hex (e.g. 0x68)
+*   @param[in] data 16-bit word.
+*   @return Status of the operation, -1 for error.
+*/
+int8_t
+i2cdev_writeword(int16_t i2cdev_h, uint8_t reg_addr,uint16_t data);
 #endif

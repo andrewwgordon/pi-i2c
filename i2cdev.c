@@ -99,12 +99,13 @@ i2cdev_readbits(int16_t i2cdev_h, uint8_t reg_addr, uint8_t bit_start, uint8_t l
     uint8_t read_byte;
     uint8_t mask;
 
-    // Check bit start - length is greater than 0
+    // Validate bit position and length
     //
-    if ((bit_start - length) > 0)
+    if ((bit_start > 7) || (length > 8) || (bit_start - length < -1))
     {
         return ERROR;
     }
+
 
     // Read the whole byte at the register
     //
@@ -132,22 +133,21 @@ i2cdev_readbits(int16_t i2cdev_h, uint8_t reg_addr, uint8_t bit_start, uint8_t l
 int8_t
 i2cdev_readbyte(int16_t i2cdev_h, uint8_t reg_addr, uint8_t *data)
 {
-    uint8_t buffer[1];                      ///< Write / read buffer
+    uint8_t reg[1];                      ///< Write / read buffer
 
-    buffer[0] = reg_addr;
+    reg[0] = reg_addr;
     // Attempt to set register to read
     //
-    if (write(i2cdev_h, buffer, 1) != 1)
+    if (write(i2cdev_h, reg, 1) != 1)
     {
         return ERROR;
     }
     // Attempt to read byte at register.
     //
-    if (read(i2cdev_h, buffer, 1) != 1)
+    if (read(i2cdev_h, data, 1) != 1)
     {
         return ERROR;
     }
-    data[0] = buffer[0];
     return OK;
 }
 
@@ -163,7 +163,7 @@ int8_t
 i2cdev_readbytes(int16_t i2cdev_h, uint8_t reg_addr, uint8_t length, uint8_t *data)
 {
     uint8_t i;
-    uint8_t buffer[32];                      ///< Write / read buffer, assumes 32 bytes max.
+    uint8_t reg[1];
 
     // Check number of bytes to read is no greater than 32
     //
@@ -172,24 +172,18 @@ i2cdev_readbytes(int16_t i2cdev_h, uint8_t reg_addr, uint8_t length, uint8_t *da
         return ERROR;
     }
 
-    buffer[0] = reg_addr;
+    reg[0] = reg_addr;
     // Attempt to set register to read
     //
-    if (write(i2cdev_h, buffer, 1) != 1)
+    if (write(i2cdev_h, reg, 1) != 1)
     {
         return ERROR;
     }
     // Attempt to read bytes at register.
     //
-    if (read(i2cdev_h, buffer, length) != length)
+    if (read(i2cdev_h, data, length) != length)
     {
         return ERROR;
-    }
-    // Set the return data buffer
-    //
-    for (i = 0; i < length; i++)
-    {
-        data[i] = buffer[i];
     }
     return OK;
 }
@@ -246,9 +240,9 @@ i2cdev_writebits(int16_t i2cdev_h, uint8_t reg_addr, uint8_t bit_start, uint8_t 
     uint8_t read_byte;
     uint8_t mask;
 
-    // Check bit start - length is greater than 0
+    // Validate bit position and length
     //
-    if ((bit_start - length) > 0)
+    if ((bit_start > 7) || (length > 8) || (bit_start - length < -1))
     {
         return ERROR;
     }
@@ -353,3 +347,33 @@ i2cdev_writebytes(int16_t i2cdev_h, uint8_t reg_addr, uint8_t length, uint8_t *d
         return OK;
     } 
  }
+
+ /**
+*   Write a word to an 8-bit device register.
+*   @param[in] i2cdev_h The handle to the I2C device.
+*   @param[in] reg_addr The address of the I2C device register, normally expressed as hex (e.g. 0x68)
+*   @param[in] data 16-bit word.
+*   @return Status of the operation, -1 for error.
+*/
+int8_t
+i2cdev_writeword(int16_t i2cdev_h, uint8_t reg_addr,uint16_t data)
+{
+    uint8_t i;
+    uint8_t buffer[3];
+
+    // Set the register.
+    //
+    buffer[0] = reg_addr;
+    buffer[1] = (uint8_t)(data >> 8); //MSByte
+    buffer[2] = (uint8_t)(data >> 0); //LSByte
+    // Write to the device.
+    //
+    if (write(i2cdev_h, buffer, 3) != 3)
+    {
+        return ERROR; 
+    }
+    else
+    {
+        return OK;
+    } 
+}
